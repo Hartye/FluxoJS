@@ -4,9 +4,14 @@ const kit = {
         return el;
     },
     get: (id: string): HTMLElement => document.querySelector(`${(id || "").charAt(0) === "#" ? id : `#${id}`}`) as HTMLElement,
-    getClass: (className: string): HTMLElement => document.querySelector(`${(className || "").charAt(0) === "." ? className : `.${className}`}`) as HTMLElement,
-    getAll: (id: string) => document.querySelectorAll(`${(id || "").charAt(0) === "#" ? id : `#${id}`}`) as NodeListOf<HTMLElement>,
-    getAllClass: (className: string) => document.querySelectorAll(`${(className || "").charAt(0) === "." ? className : `.${className}`}`) as NodeListOf<HTMLElement>,
+    getClass: (className: string): HTMLElement =>
+        document.querySelector(`${(className || "").charAt(0) === "." ? className : `.${className}`}`) as HTMLElement,
+    getAll: (id: string) =>
+        document.querySelectorAll(`${(id || "").charAt(0) === "#" ? id : `#${id}`}`) as NodeListOf<HTMLElement>,
+    getAllClass: (className: string) =>
+        document.querySelectorAll(
+            `${(className || "").charAt(0) === "." ? className : `.${className}`}`
+        ) as NodeListOf<HTMLElement>,
     append: (el: Element, targetEl: Element) => {
         el.appendChild(targetEl);
         return el;
@@ -50,9 +55,10 @@ class RefClass<K extends keyof HTMLElementTagNameMap> {
         return this;
     }
 
-    appendArray(elList: Array<RefClass<K>>) {
-        for (let i = 0; i < elList.length; i++) {
-            this.appendNative(elList[i].element);
+    appendArray(elList: Array<RefClass<K> | null>) {
+        const filteredElList = elList.filter((s) => s !== null);
+        for (let i = 0; i < filteredElList.length; i++) {
+            this.appendNative(filteredElList[i].element);
         }
         return this;
     }
@@ -71,7 +77,11 @@ class RefClass<K extends keyof HTMLElementTagNameMap> {
         return this;
     }
 
-    on<K extends keyof GlobalEventHandlersEventMap>(type: K, callback: (ev: HTMLElementEventMap[K]) => void, options?: boolean | AddEventListenerOptions) {
+    on<K extends keyof GlobalEventHandlersEventMap>(
+        type: K,
+        callback: (ev: HTMLElementEventMap[K]) => void,
+        options?: boolean | AddEventListenerOptions
+    ) {
         this.element.addEventListener(type, (ev) => callback(ev), options);
         return this;
     }
@@ -136,6 +146,16 @@ class RefClass<K extends keyof HTMLElementTagNameMap> {
             }
         },
     };
+
+    placeholder(placeholder: string) {
+        this.getInputElement().placeholder = placeholder;
+        return this;
+    }
+
+    source(source: string) {
+        (this.element as HTMLImageElement).src = source;
+        return this;
+    }
 
     get = {
         value: () => this.getInputElement().value,
@@ -205,5 +225,7 @@ export type HTMLInputTypeAttribute =
     | "week"
     | (string & {});
 
-export const Ref = <K extends keyof HTMLElementTagNameMap>(elementTag?: K, element?: HTMLElement, elementId?: string) => new RefClass(elementTag, element, elementId);
-export const MultiRef = (nodeList?: NodeListOf<HTMLElement>, nodeListId?: string, nodeListClass?: string) => new MultiRefClass(nodeList, nodeListId, nodeListClass);
+export const Ref = <K extends keyof HTMLElementTagNameMap>(elementTag?: K, element?: HTMLElement, elementId?: string) =>
+    new RefClass(elementTag, element, elementId);
+export const MultiRef = (nodeList?: NodeListOf<HTMLElement>, nodeListId?: string, nodeListClass?: string) =>
+    new MultiRefClass(nodeList, nodeListId, nodeListClass);
