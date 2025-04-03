@@ -19,7 +19,7 @@ const kit = {
     create: <K extends keyof HTMLElementTagNameMap>(element: K): HTMLElement => document.createElement(element),
 };
 
-class RefClass<K extends keyof HTMLElementTagNameMap> {
+export class RefClass<K extends keyof HTMLElementTagNameMap> {
     element: HTMLElement;
 
     constructor(elementTag?: K, element?: HTMLElement, elementId?: string) {
@@ -146,6 +146,14 @@ class RefClass<K extends keyof HTMLElementTagNameMap> {
             }
         },
     };
+
+    scrollBottom() {
+        setTimeout(() => {
+            const childList = this.element.children;
+            this.element.children[childList.length - 1].scrollIntoView({ behavior: "smooth", block: "end" });
+        }, 100);
+        return this;
+    }
 
     placeholder(placeholder: string) {
         this.getInputElement().placeholder = placeholder;
